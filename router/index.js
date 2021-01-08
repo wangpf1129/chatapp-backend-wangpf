@@ -15,6 +15,8 @@ const user = require('../server/userDetails')
 // 好友申请操作
 const friend = require('../server/friend')
 
+// 上传附件操作
+const upload = require('./file')
 router.post('/test', (req, res) => {
   dbServer.findUser(res)
 })
@@ -106,8 +108,13 @@ router.post('/friend/deleteFriend', (req, res) => {
 
 
 
-
-
+// 附件上传
+router.post('/files/upload', upload.array('file', 9), function (req, res, next) {
+  // 获取文件名
+  let data = req.files[0].filename
+  // 返回给前端
+  res.send(data)
+})
 
 
 

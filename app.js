@@ -41,6 +41,13 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
 
 
+// 解析前端数据  限制上传文件大小
+app.use(bodyParser.urlencoded({limit:'50mb',extended: true}))
+app.use(bodyParser.json({limit: '50mb'}))
+
+
+// 获取静态路径
+app.use(express.static(__dirname+'/public'))
 // token 判断
 app.use(function (req,res,next) {
   if(typeof (req.body.token) != 'undefined'){

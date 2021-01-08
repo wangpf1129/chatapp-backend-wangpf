@@ -43,7 +43,7 @@ exports.buildUser = function (name, email, pwd, res) {
 exports.countUserValue = function (data, type, res) {
   // 输入的什么
   let whereStr = {}
-  // whereStr = {  'type' : data }
+  // whereStr = {  'type' : public }
   whereStr[type] = data
   // // mongodb API  匹配用户
   User.countDocuments(whereStr)
@@ -301,7 +301,7 @@ function match(updateStr, data, res) {
 }
 
 exports.userUpdate = function (data, res) {
-  // data 传给前端的数据对象
+  // public 传给前端的数据对象
   let updateStr = {}
 
   // 判断是否有密码
