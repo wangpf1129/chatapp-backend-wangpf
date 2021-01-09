@@ -17,6 +17,8 @@ const friend = require('../server/friend')
 
 // 上传附件操作
 const upload = require('./file')
+// 首页 好友列表渲染数据
+const index = require('../server/index')
 router.post('/test', (req, res) => {
   dbServer.findUser(res)
 })
@@ -116,6 +118,41 @@ router.post('/files/upload', upload.array('file', 9), function (req, res, next) 
   res.send(data)
 })
 
+// 渲染主页列表
+// 获取好友
+router.post('/index/getFriendList', (req, res) => {
+  index.getFriendList(req,res)
+})
+
+// 获取和好友的最后一条消息
+router.post('/index/getLastMessage', (req, res) => {
+  index.getLastMessage(req,res)
+})
+// 获取好友的未读消息数
+router.post('/index/unReadMessage', (req, res) => {
+  index.unReadMessage(req,res)
+})
+
+// 好友消息标记已读
+router.post('/index/updateMessage', (req, res) => {
+  index.updateMessage(req,res)
+})
+
+
+// 获取群
+router.post('/index/getGroupList', (req, res) => {
+  index.getGroupList(req,res)
+})
+
+// 获取和群的最后一条消息
+router.post('/index/getLastGroupMessage', (req, res) => {
+  index.getLastGroupMessage(req,res)
+})
+
+// 群消息标记已读
+router.post('/index/updateGroupMessage', (req, res) => {
+  index.updateGroupMessage(req,res)
+})
 
 
 module.exports = router

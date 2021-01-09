@@ -48,7 +48,6 @@ let GroupSchema = new Schema({
   imgUrl: {type: String, default: 'group.png'},          // 群头像
   createDate: {type: Date},                             // 创建日期
   notice: {type: String},                               // 群公告
-  lastTime: {type: Date},                                  // 最后通讯时间 （后添加的）
 })
 
 // 群成员表
@@ -58,6 +57,7 @@ let GroupUserSchema = new Schema({
   groupUserName:{type:String},                           // 群内成员名称
   tip:{type:Number,default:0},                          // 未读消息数
   joinDate:{type:Date},                                // 加入时间
+  lastTime: {type: Date},                                  // 最后通讯时间 （后添加的）
   shield:{type:Number},                               // 是否屏蔽消息（0不屏蔽，1屏蔽）
 })
 

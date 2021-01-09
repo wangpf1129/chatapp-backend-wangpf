@@ -9,6 +9,7 @@ const Friend = dbModel.model('Friend')
 const Group = dbModel.model('Group')
 const GroupUser = dbModel.model('GroupUser')
 const Message = dbModel.model('Message')
+const GroupMessage  =dbModel.model('GroupMessage')
 // 新建用户
 exports.buildUser = function (name, email, pwd, res) {
   // 密码加密
@@ -454,7 +455,7 @@ exports.applyFriend = function (data, res) {
 //  更新好友状态
 exports.updateFriendState = function (data, res) {
   // 修改项
-  let whereStr = {$or: [{'userID': data.uID, 'friendID': data.fID}, {'friendID': data.uID, 'userID': data.fID}]}
+  let whereStr = {$or: [{'userID': data.uID, 'friendID': data.fID}, {'userID': data.fID, 'friendID': data.uID}]}
   Friend.updateMany(whereStr, {'state': 0})
     .then(function () {
       res.send({status: 200})
@@ -467,7 +468,7 @@ exports.updateFriendState = function (data, res) {
 // 拒接好友 或者 删除好友
 exports.deleteFriend = function (data, res) {
   // 修改项
-  let whereStr = {$or: [{'userID': data.uID, 'friendID': data.fID}, {'friendID': data.uID, 'userID': data.fID}]}
+  let whereStr = {$or: [{'userID': data.uID, 'friendID': data.fID}, {'userID': data.fID, 'friendID': data.uID}]}
   Friend.deleteMany(whereStr)
     .then(function () {
       res.send({status: 200})
@@ -476,3 +477,161 @@ exports.deleteFriend = function (data, res) {
       res.send({status: 500})
     })
 }
+
+
+// 按要求获取好友列表
+exports.getFriendList = function (data, res) {
+  let query = Friend.find({})
+  // 查询条件
+  query.where({'userID': data.uID, 'state': data.state})
+  // 查找 friendID 关联的 user对象
+  query.populate('friendID')
+  //  排序方式： 以最后通讯时间 从前往后排
+  query.sort({'lastTime': -1})
+  // 查询结果
+  query.exec()
+    .then(function (e) {
+      let result = e.map(item => {
+        return {
+          // friendID的数据 是从用户表里取出来
+          // item 就是好友表中的数据
+          id: item.friendID._id,     // 好友的iD   （ 指 用户表中的 id）
+          name: item.friendID.userName,   // 好友名 （指 用户表中的 userName）
+          markName: item.markName,       //  好友的昵称   （指 好友表中的 markName）
+          imgUrl: item.friendID.imgUrl,    // （ 指 用户表中的 头像）
+          lastTime: item.lastTime   // 最后通讯事件 （指 好友表中的 lastTime）
+        }
+      })
+      res.send({status: 200, result})
+    })
+    .catch(() => {
+      res.send({status: 500})
+    })
+}
+
+// 按要求获取一条一对一消息
+exports.getOneMessage = function (data, res) {
+  let query = Message.findOne({})
+  // 查询条件
+  query.where({$or: [{'userID': data.uID, 'friendID': data.fID}, {'userID': data.fID, 'friendID': data.uID}]})
+  //  排序方式： 以最后通讯时间 从前往后排
+  query.sort({'sendTime': -1})
+  // 查询结果
+  query.exec()
+    .then(function (item) {
+      let result = {
+        message: item.message,
+        sendTime: item.sendTime,
+        messageTypes: item.messageTypes
+      }
+      res.send({status: 200, result})
+    })
+    .catch(() => {
+      res.send({status: 500})
+    })
+}
+
+//  汇总一对一消息未读数
+exports.unReadMessage = function (data, res) {
+  // 汇总条件
+  let whereStr = {'userID': data.uID, 'friendID': data.fID, 'state': 1}
+  Message.countDocuments(whereStr)
+    .catch(() => {
+      res.send({status: 500})
+    })
+    .then((result) => {
+      res.send({status: 200, result})
+    })
+}
+
+// 一对一消息状态修改
+exports.updateMessage = function (data, res) {
+  //  修改项条件
+  let whereStr = {'userID': data.uID, 'friendID': data.fID, 'state': 1}
+  // 修改内容
+  let updateStr = {'state': 0}
+  Message.updateMany(whereStr,updateStr)
+    .catch(() => {
+      res.send({status: 500})
+    })
+    .then(() => {
+      res.send({status: 200})
+    })
+}
+
+
+// 按要求获取群列表
+exports.getGroupList = function (id, res) {
+  // id 为用户 所在的群
+  let query = GroupUser.find({})
+  // 查询条件
+  query.where({'userID':id})
+  // 查找 groupID 关联的 user对象
+  query.populate('groupID')
+  //  排序方式： 以最后通讯时间 从前往后排
+  query.sort({'lastTime': -1})
+
+  // 查询结果
+  query.exec()
+    .then(function (e) {
+      let result = e.map(item => {
+        return {
+          // groupID 是从群表里取出来
+          // item 就是群成员表中的数据
+          gID: item.groupID._id,    // 群ID   （在群表里找）
+          name: item.groupID.groupName,  // 群名   （在群表里找）
+          markName: item.groupUserName,  // markName 指 在 群内的昵称   （在群成员表里找）
+          imgUrl: item.groupID.imgUrl,  // 群头像    （在群表里找）
+          lastTime: item.lastTime,     // 群的最后通讯时间   （在群成员表里找）
+          tip:item.tip
+        }
+      })
+      res.send({status: 200, result})
+    })
+    .catch(() => {
+      res.send({status: 500})
+    })
+}
+
+
+// 按要求获取群消息
+exports.getOneGroupMessage = function (data, res) {
+  let query = GroupMessage.findOne({})
+  // 查询条件
+  query.where( {'groupID': data.gID})
+  // 关联的 user对象
+  query.populate('userID')
+  //  排序方式： 以最后通讯时间 从前往后排
+  query.sort({'sendTime': -1})
+  // 查询结果
+  query.exec()
+    .then(function (item) {
+      let result = {
+        message: item.message,
+        sendTime: item.sendTime,
+        messageTypes: item.messageTypes,
+        userName:item.userID.userName
+      }
+      res.send({status: 200, result})
+    })
+    .catch(() => {
+      res.send({status: 500})
+    })
+}
+
+
+// 群消息状态修改
+exports.updateGroupMessage = function (data,res) {
+  //  修改项条件
+  let whereStr = {'userID': data.uID, 'groupID': data.gID}
+  // 修改内容
+  let updateStr = {'tip': 0}
+  Message.updateMany(whereStr,updateStr)
+    .catch(() => {
+      res.send({status: 500})
+    })
+    .then(() => {
+      res.send({status: 200})
+    })
+}
+
