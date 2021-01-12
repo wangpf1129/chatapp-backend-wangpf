@@ -1,12 +1,13 @@
 const dbServer = require('../dao/dbserver')
-
+const emailServer = require('../dao/emailserver')
 // 用户注册
 exports.signUp = function (req,res) {
     // 获取用户的 用户名，邮箱，密码
   let {name,email,pwd} = req.body
 
   // res.send({name,mail,pwd})  //  测试用的
-
+  //发送邮件
+  emailServer.emailSignUp(email)
   // 传入dbServer中(数据库)
   dbServer.buildUser(name,email,pwd,res)
 }

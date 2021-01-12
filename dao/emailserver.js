@@ -20,7 +20,7 @@ exports.emailSignUp = function (email, res) {
     to: email,
     subject: '感谢您在yiKe注册',
     html: `<span>yiKe欢迎您的加入！</span>
-           <a href="http://localhost:8080/">点击</a>`
+           <a href="https://github.com/wwwpppfffzzz">点击进入我的主页</a>`
   }
 
   // 发送邮件

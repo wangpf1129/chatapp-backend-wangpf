@@ -358,9 +358,9 @@ exports.getFriendMarkName = function (data, res) {
       // 获取失败
       res.send({status: 500})
     })
-    .then(function () {
+    .then(function (result) {
       // 获取成功
-      res.send({status: 200})
+      res.send({status: 200,result})
     })
 }
 
