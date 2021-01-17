@@ -296,7 +296,7 @@ function match(updateStr, data, res) {
         update(data.id, updateStr, res)
       } else {
         // 修改的邮箱已存在
-        res.send({status: 300})
+        res.send({status: 600})
       }
     })
 }
@@ -421,10 +421,14 @@ exports.insertMessage = function (uID, fID, msg, type, res) {
   let message = new Message(data)
   message.save()
     .then(function () {
-      res.send({status: 200})
+      if(res){
+        res.send({status: 200})
+      }
     })
     .catch(function () {
-      res.send({status: 500})
+      if(res){
+        res.send({status: 500})
+      }
     })
 }
 
@@ -499,7 +503,8 @@ exports.getFriendList = function (data, res) {
           name: item.friendID.userName,   // 好友名 （指 用户表中的 userName）
           markName: item.markName,       //  好友的昵称   （指 好友表中的 markName）
           imgUrl: item.friendID.imgUrl,    // （ 指 用户表中的 头像）
-          lastTime: item.lastTime   // 最后通讯事件 （指 好友表中的 lastTime）
+          lastTime: item.lastTime,   // 最后通讯事件 （指 好友表中的 lastTime）
+          type:0
         }
       })
       res.send({status: 200, result})
@@ -534,7 +539,7 @@ exports.getOneMessage = function (data, res) {
 //  汇总一对一消息未读数
 exports.unReadMessage = function (data, res) {
   // 汇总条件
-  let whereStr = {'userID': data.uID, 'friendID': data.fID, 'state': 1}
+  let whereStr = {'userID': data.fID, 'friendID': data.uID, 'state': 1}
   Message.countDocuments(whereStr)
     .catch(() => {
       res.send({status: 500})
@@ -578,12 +583,13 @@ exports.getGroupList = function (id, res) {
         return {
           // groupID 是从群表里取出来
           // item 就是群成员表中的数据
-          gID: item.groupID._id,    // 群ID   （在群表里找）
+          ID: item.groupID._id,    // 群ID   （在群表里找）
           name: item.groupID.groupName,  // 群名   （在群表里找）
           markName: item.groupUserName,  // markName 指 在 群内的昵称   （在群成员表里找）
           imgUrl: item.groupID.imgUrl,  // 群头像    （在群表里找）
           lastTime: item.lastTime,     // 群的最后通讯时间   （在群成员表里找）
-          tip:item.tip
+          tip:item.tip,
+          type:1
         }
       })
       res.send({status: 200, result})
@@ -635,3 +641,46 @@ exports.updateGroupMessage = function (data,res) {
     })
 }
 
+
+
+// 消息操作
+// 分页获取数据一对一聊天数据
+exports.getPageMessage = function (data,res) {
+ // data: uID, fID , nowPage , pageSize
+  let skipNumber =data.nowPage * data.pageSize // 跳过的条数
+
+  // id 为用户 所在的群
+  let query = Message.find({})
+  // 查询条件
+  query.where({$or: [{'userID': data.uID, 'friendID': data.fID}, {'userID': data.fID, 'friendID': data.uID}]})
+  //  排序方式： 以最后通讯时间 从前往后排
+  query.sort({'sendTime': -1})
+  // 查找friendID 关联的user对象
+  query.populate('userID')
+  // 跳过条数
+  query.skip(skipNumber)
+  // 一页条数
+  query.limit(data.pageSize)
+
+  // 查询结果
+  query.exec()
+    .then(function (e) {
+      let result = e.map(item => {
+        return {
+          // groupID 是从群表里取出来
+          // item 就是群成员表中的数据
+          id: item._id,
+          message: item.message,
+          messageTypes: item.messageTypes,
+          sendTime: item.sendTime,
+          fromID : item.userID._id,  // 谁发的
+          imgUrl: item.userID.imgUrl,
+        }
+      })
+      res.send({status: 200, result})
+    })
+    .catch(() => {
+      res.send({status: 500})
+    })
+
+}

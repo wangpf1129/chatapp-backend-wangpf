@@ -16,6 +16,5 @@ exports.verification = function (e,hash) {
   // e 用户传过来的密码， hash 数据库存的密码
   //  let verif = bcrypt.compareSync(e,hash)
   // return verif
-
   return bcrypt.compareSync(e,hash)
 }

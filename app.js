@@ -9,6 +9,11 @@ const bodyParser = require('body-parser')
 // 引入 router.js 模块
 const router = require('./router/index')
 
+const server = app.listen(8082)
+const io = require('socket.io').listen(server)
+require('./dao/socket')(io)
+
+
 //设置跨域访问
 app.all('*', (req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");

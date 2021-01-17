@@ -14,6 +14,8 @@ const search = require('../server/search')
 const user = require('../server/userDetails')
 // 好友申请操作
 const friend = require('../server/friend')
+// 聊天数据
+const chat = require('../server/chat')
 
 // 上传附件操作
 const upload = require('./file')
@@ -112,10 +114,13 @@ router.post('/friend/deleteFriend', (req, res) => {
 
 // 附件上传
 router.post('/files/upload', upload.array('file', 9), function (req, res, next) {
+  //获取路径
+  let url = req.body.url
   // 获取文件名
-  let data = req.files[0].filename
+  let name = req.files[0].filename
+  let imgUrl = '/' + url +'/' +name
   // 返回给前端
-  res.send(data)
+  res.send(imgUrl)
 })
 
 // 渲染主页列表
@@ -152,6 +157,12 @@ router.post('/index/getLastGroupMessage', (req, res) => {
 // 群消息标记已读
 router.post('/index/updateGroupMessage', (req, res) => {
   index.updateGroupMessage(req,res)
+})
+
+// 聊天页面
+// 获取一对一聊天数据
+router.post('/chat/getPageMessage', (req, res) => {
+  chat.getPageMessage(req,res)
 })
 
 
