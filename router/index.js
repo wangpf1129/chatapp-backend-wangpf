@@ -16,6 +16,8 @@ const user = require('../server/userDetails')
 const friend = require('../server/friend')
 // 聊天数据
 const chat = require('../server/chat')
+// 群
+const group = require('../server/group')
 
 // 上传附件操作
 const upload = require('./file')
@@ -165,6 +167,12 @@ router.post('/chat/getPageMessage', (req, res) => {
   chat.getPageMessage(req,res)
 })
 
+
+// 创建群页面
+// 建群
+router.post('/group/createGroup', (req, res) => {
+  group.createGroup(req,res)
+})
 
 module.exports = router
 

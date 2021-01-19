@@ -45,7 +45,7 @@ let MessageSchema = new Schema({
 let GroupSchema = new Schema({
   userID: {type: Schema.Types.ObjectId, ref: 'User'},   // 用户ID
   groupName: {type: String},                            // 群名称
-  imgUrl: {type: String, default: '/group/group.png'},          // 群头像
+  imgUrl: {type: String, default: '/group/group.png'},   // 群头像
   createDate: {type: Date},                             // 创建日期
   notice: {type: String},                               // 群公告
 })

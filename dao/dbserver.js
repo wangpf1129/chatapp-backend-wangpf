@@ -9,7 +9,7 @@ const Friend = dbModel.model('Friend')
 const Group = dbModel.model('Group')
 const GroupUser = dbModel.model('GroupUser')
 const Message = dbModel.model('Message')
-const GroupMessage  =dbModel.model('GroupMessage')
+const GroupMessage = dbModel.model('GroupMessage')
 // 新建用户
 exports.buildUser = function (name, email, pwd, res) {
   // 密码加密
@@ -31,13 +31,7 @@ exports.buildUser = function (name, email, pwd, res) {
     .catch(function () {
       res.send({status: 500})
     })
-  // user.save((err, result) => {
-  //   if (err) {
-  //     res.send({status: 500})
-  //   } else {
-  //     res.send({status: 200})
-  //   }
-  // })
+
 }
 
 // 匹配用户元素个数
@@ -54,13 +48,7 @@ exports.countUserValue = function (data, type, res) {
     .then(function (result) {
       res.send({status: 200, result})
     })
-  // User.countDocuments(whereStr, (err, result) => {
-  //   if (err) {
-  //     res.send({status: 500})
-  //   } else {
-  //     res.send({status: 200, result})
-  //   }
-  // })
+
 }
 
 // 用户验证
@@ -69,7 +57,6 @@ exports.userMatch = function (data, pwd, res) {
   let whereStr = {$or: [{'userName': data}, {'email': data}]}
   // 输出的什么。  要和数据库的表一致 需要输出 用户名、头像、密码
   let out = {'userName': 1, 'imgUrl': 1, 'password': 1}
-
   //  mongodb find 方法
   User.find(whereStr, out)
     .catch(function () {
@@ -99,34 +86,6 @@ exports.userMatch = function (data, pwd, res) {
       })
     })
 
-  // User.find(whereStr, out, (err, result) => {
-  //   // console.log(result)
-  //   if (err) {
-  //     res.send({status: 500})
-  //   } else {
-  //     if (result.length === 0) {  // 判断 result 是否 为空
-  //       res.send({status: 400})
-  //     }
-  //     result.map((e) => {
-  //       // 密码匹配
-  //       // pwd 用户输入的密码     e.password 数据库中存放的密码（用bcrypt解密）    俩个密码与之匹配
-  //       const pwdMatch = bcrypt.verification(pwd, e.password)
-  //       if (pwdMatch) {
-  //         let token = jwt.generateToken(e._id)
-  //         // 返回的东西
-  //         let back = {
-  //           id: e._id,
-  //           userName: e.userName,
-  //           imgUrl: e.imgUrl,
-  //           token: token
-  //         }
-  //         res.send({status: 200, back})
-  //       } else {
-  //         res.send({status: 400})
-  //       }
-  //     })
-  //   }
-  // })
 }
 
 // 搜索用户
@@ -176,19 +135,6 @@ exports.isFriend = function (uID, fID, res) {
         res.send({status: 400})
       }
     })
-  // Friend.findOne(whereStr, function (err, result) {
-  //   if (err) {
-  //     res.send({status: 500})
-  //   } else {
-  //     if (result) {
-  //       // 则是好友
-  //       res.send({status: 200})
-  //     } else {
-  //       // 则不是好友
-  //       res.send({status: 400})
-  //     }
-  //   }
-  // })
 }
 
 // 搜索群
@@ -211,13 +157,7 @@ exports.searchGroup = function (data, res) {
     .then(function (result) {
       res.send({status: 200, result})
     })
-  // Group.find(whereStr, out, (err, result) => {
-  //   if (err) {
-  //     res.send({status: 500})
-  //   } else {
-  //     res.send({status: 200, result})
-  //   }
-  // })
+
 }
 
 
@@ -237,19 +177,6 @@ exports.inGroup = function (uID, gID, res) {
         res.send({status: 400})
       }
     })
-  // GroupUser.findOne(whereStr, function (err, result) {
-  //   if (err) {
-  //     res.send({status: 500})
-  //   } else {
-  //     if (result) {
-  //       // 则在群内
-  //       res.send({status: 200})
-  //     } else {
-  //       // 则不在群内
-  //       res.send({status: 400})
-  //     }
-  //   }
-  // })
 }
 
 // 用户详情页
@@ -263,13 +190,6 @@ exports.userDetail = function (id, res) {
     .then(function (result) {
       res.send({status: 200, result})
     })
-  // User.findOne(whereStr, out, (err, result) => {
-  //   if (err) {
-  //     res.send({status: 500})
-  //   } else {
-  //     res.send({status: 200, result})
-  //   }
-  // })
 }
 
 // 用户信息修改
@@ -360,7 +280,7 @@ exports.getFriendMarkName = function (data, res) {
     })
     .then(function (result) {
       // 获取成功
-      res.send({status: 200,result})
+      res.send({status: 200, result})
     })
 }
 
@@ -421,12 +341,12 @@ exports.insertMessage = function (uID, fID, msg, type, res) {
   let message = new Message(data)
   message.save()
     .then(function () {
-      if(res){
+      if (res) {
         res.send({status: 200})
       }
     })
     .catch(function () {
-      if(res){
+      if (res) {
         res.send({status: 500})
       }
     })
@@ -484,7 +404,7 @@ exports.deleteFriend = function (data, res) {
 
 
 // 按要求获取好友列表
-exports.getFriendList = function (data, res) {
+exports.getFriendList1 = function (data, res) {
   let query = Friend.find({})
   // 查询条件
   query.where({'userID': data.uID, 'state': data.state})
@@ -504,7 +424,7 @@ exports.getFriendList = function (data, res) {
           markName: item.markName,       //  好友的昵称   （指 好友表中的 markName）
           imgUrl: item.friendID.imgUrl,    // （ 指 用户表中的 头像）
           lastTime: item.lastTime,   // 最后通讯事件 （指 好友表中的 lastTime）
-          type:0
+          type: 0
         }
       })
       res.send({status: 200, result})
@@ -512,6 +432,43 @@ exports.getFriendList = function (data, res) {
     .catch(() => {
       res.send({status: 500})
     })
+}
+
+exports.getFriendList = function (data, res) {
+  asyncGetFriendList(data, res)
+}
+
+
+function getFriendsList(data) {
+  return new Promise(function (resolve, reject) {
+    let query = Friend.find({})
+    // 查询条件
+    query.where({'userID': data.uID, 'state': data.state})
+    // 查找 friendID 关联的 user对象
+    query.populate('friendID')
+    //  排序方式： 以最后通讯时间 从前往后排
+    query.sort({'lastTime': -1})
+    // 查询结果
+    query.exec()
+      .then(function (e) {
+        let result = e.map(item => {
+          return {
+            // friendID的数据 是从用户表里取出来
+            // item 就是好友表中的数据
+            id: item.friendID._id,     // 好友的iD   （ 指 用户表中的 id）
+            name: item.friendID.userName,   // 好友名 （指 用户表中的 userName）
+            markName: item.markName,       //  好友的昵称   （指 好友表中的 markName）
+            imgUrl: item.friendID.imgUrl,    // （ 指 用户表中的 头像）
+            lastTime: item.lastTime,   // 最后通讯事件 （指 好友表中的 lastTime）
+            type: 0
+          }
+        })
+        resolve(result)
+      })
+      .catch(() => {
+        reject({status: 500})
+      })
+  })
 }
 
 // 按要求获取一条一对一消息
@@ -522,18 +479,40 @@ exports.getOneMessage = function (data, res) {
   //  排序方式： 以最后通讯时间 从前往后排
   query.sort({'sendTime': -1})
   // 查询结果
-  query.exec()
-    .then(function (item) {
+  query.exec().then(function (item) {
+    console.log(item)
       let result = {
         message: item.message,
         sendTime: item.sendTime,
         messageTypes: item.messageTypes
       }
       res.send({status: 200, result})
-    })
-    .catch(() => {
+    }).catch(() => {
       res.send({status: 500})
     })
+}
+
+function getOneMessages(uID, fID) {
+  return new Promise(function (resolve, reject) {
+    let query = Message.findOne({})
+    // 查询条件
+    query.where({$or: [{'userID': uID, 'friendID': fID}, {'userID': fID, 'friendID': uID}]})
+    //  排序方式： 以最后通讯时间 从前往后排
+    query.sort({'sendTime': -1})
+    // 查询结果
+    query.exec()
+      .then(function (item) {
+        let result = {
+          message: item.message,
+          sendTime: item.sendTime,
+          messageTypes: item.messageTypes
+        }
+        resolve(result)
+      })
+      .catch(() => {
+        reject({status: 500})
+      })
+  })
 }
 
 //  汇总一对一消息未读数
@@ -549,13 +528,54 @@ exports.unReadMessage = function (data, res) {
     })
 }
 
+function unReadMessages(uID, fID) {
+  return new Promise(function (resolve, reject) {
+    // 汇总条件
+    let whereStr = {'userID': fID, 'friendID': uID, 'state': 1}
+    Message.countDocuments(whereStr)
+      .catch(() => {
+        reject({status: 500})
+      })
+      .then((result) => {
+        resolve(result)
+      })
+  })
+}
+
+//async/await 联合查找好友及最后一条消息和未读消息数
+async function asyncGetFriendList(data, res) {
+  let result, lastMessage, unRead, err
+  ;[err, result] = await getFriendsList(data).then(data => [null, data]).catch(err => [err, null])
+  for (let i = 0; i < result.length; i++) {
+    ;[err, lastMessage] = await getOneMessages(data.uID, result[i].id).then(data => [null, data]).catch(err => [err, null])
+    let messageTypesMap = {
+      1: '[图片]',
+      2: '[语音]',
+      3: '[位置]'
+    }
+    if (lastMessage.messageTypes === '0') {
+      // 文字
+    } else {
+      lastMessage.message = messageTypesMap[lastMessage.messageTypes]
+    }
+    result[i].message = lastMessage.message
+    ;[err, unRead] = await unReadMessages(data.uID, result[i].id).then(data => [null, data]).catch(err => [err, null])
+    result[i].tips = unRead
+  }
+  if (err) {
+    res.send(err)
+  } else {
+    res.send({status: 200, result})
+  }
+}
+
 // 一对一消息状态修改
 exports.updateMessage = function (data, res) {
   //  修改项条件
   let whereStr = {'userID': data.uID, 'friendID': data.fID, 'state': 1}
   // 修改内容
   let updateStr = {'state': 0}
-  Message.updateMany(whereStr,updateStr)
+  Message.updateMany(whereStr, updateStr)
     .catch(() => {
       res.send({status: 500})
     })
@@ -565,12 +585,93 @@ exports.updateMessage = function (data, res) {
 }
 
 
+// 添加新成员到群
+function insertGroupUser(data) {
+  let groupUser = new GroupUser(data)
+  groupUser.save((err, res) => {
+    if (err) {
+      res.send({status: 500})
+    } else {
+      console.log('添加群成员成功！')
+    }
+  })
+
+}
+
+// 新建群
+exports.createGroup = function (data, res) {
+  let groupData = {
+    userID: data.uID, //创建群的群主ID
+    groupName: data.groupName, // 群名
+    imgUrl: data.imgUrl, // 群头像
+    createDate: new Date(),  //创建时间
+  }
+  let group = new Group(groupData)
+
+  group.save()
+    .catch(() => {
+      res.send({status: 500})
+    })
+    .then((value) => {
+      console.log(value)
+      // 添加好友入群
+      for (let i = 0; i < data.user.length; i++) {
+        let fData = {
+          groupID: value._id,    // 群ID
+          userID: data.user[i],  // 群主ID
+          joinDate: new Date(), // 进入时间
+          lastTime: new Date(), // 最后通讯时间
+        }
+        // 加入
+        insertGroupUser(fData, res)
+      }
+      res.send({status: 200})
+    })
+}
+// exports.createGroup = function (data, res) {
+//   return new Promise(function(resolve, reject){
+//     let groupData = {
+//       userID: data.uID, //创建群的群主ID
+//       groupName: data.groupName, // 群名
+//       imgUrl: data.imgUrl, // 群头像
+//       createDate: new Date(),  //创建时间
+//     }
+//
+//     let group = new Group(groupData)
+//
+//     group.save(function(err, result){
+//       if (err) {
+//         reject({status:500})
+//       } else {
+//         resolve(result)
+//       }
+//     })
+//   }).then(function onFulfilled(value){
+//     // 添加好友入群
+//     for (let i = 0; i < data.user.length; i++) {
+//       let fData = {
+//         groupID: value._id, // 群ID
+//         userID: data.use[i],  // 群主ID
+//         joinDate: new Date(), // 进入时间
+//         lastTime: new Date(), // 最后通讯时间
+//       }
+//       // 加入
+//       insertGroupUser(fData, res)
+//     }
+//     //创建成功
+//     res.send({status: 200})
+//   }).catch(function onRejected(error){
+//     res.send(error)
+//   })
+// }
+
+
 // 按要求获取群列表
-exports.getGroupList = function (id, res) {
+exports.getGroupList = function (data, res) {
   // id 为用户 所在的群
   let query = GroupUser.find({})
   // 查询条件
-  query.where({'userID':id})
+  query.where({'userID': data.uID})
   // 查找 groupID 关联的 user对象
   query.populate('groupID')
   //  排序方式： 以最后通讯时间 从前往后排
@@ -583,13 +684,13 @@ exports.getGroupList = function (id, res) {
         return {
           // groupID 是从群表里取出来
           // item 就是群成员表中的数据
-          ID: item.groupID._id,    // 群ID   （在群表里找）
+          id: item.groupID._id,    // 群ID   （在群表里找）
           name: item.groupID.groupName,  // 群名   （在群表里找）
           markName: item.groupUserName,  // markName 指 在 群内的昵称   （在群成员表里找）
           imgUrl: item.groupID.imgUrl,  // 群头像    （在群表里找）
           lastTime: item.lastTime,     // 群的最后通讯时间   （在群成员表里找）
-          tip:item.tip,
-          type:1
+          tip: item.tip,
+          type: 1
         }
       })
       res.send({status: 200, result})
@@ -604,7 +705,7 @@ exports.getGroupList = function (id, res) {
 exports.getOneGroupMessage = function (data, res) {
   let query = GroupMessage.findOne({})
   // 查询条件
-  query.where( {'groupID': data.gID})
+  query.where({'groupID': data.gID})
   // 关联的 user对象
   query.populate('userID')
   //  排序方式： 以最后通讯时间 从前往后排
@@ -616,7 +717,7 @@ exports.getOneGroupMessage = function (data, res) {
         message: item.message,
         sendTime: item.sendTime,
         messageTypes: item.messageTypes,
-        userName:item.userID.userName
+        userName: item.userID.userName
       }
       res.send({status: 200, result})
     })
@@ -627,12 +728,12 @@ exports.getOneGroupMessage = function (data, res) {
 
 
 // 群消息状态修改
-exports.updateGroupMessage = function (data,res) {
+exports.updateGroupMessage = function (data, res) {
   //  修改项条件
   let whereStr = {'userID': data.uID, 'groupID': data.gID}
   // 修改内容
   let updateStr = {'tip': 0}
-  Message.updateMany(whereStr,updateStr)
+  Message.updateOne(whereStr, updateStr)
     .catch(() => {
       res.send({status: 500})
     })
@@ -642,12 +743,11 @@ exports.updateGroupMessage = function (data,res) {
 }
 
 
-
 // 消息操作
 // 分页获取数据一对一聊天数据
-exports.getPageMessage = function (data,res) {
- // data: uID, fID , nowPage , pageSize
-  let skipNumber =data.nowPage * data.pageSize // 跳过的条数
+exports.getPageMessage = function (data, res) {
+  // data: uID, fID , nowPage , pageSize
+  let skipNumber = data.nowPage * data.pageSize // 跳过的条数
 
   // id 为用户 所在的群
   let query = Message.find({})
@@ -673,7 +773,7 @@ exports.getPageMessage = function (data,res) {
           message: item.message,
           messageTypes: item.messageTypes,
           sendTime: item.sendTime,
-          fromID : item.userID._id,  // 谁发的
+          fromID: item.userID._id,  // 谁发的
           imgUrl: item.userID.imgUrl,
         }
       })

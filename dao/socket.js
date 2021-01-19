@@ -17,8 +17,8 @@ module.exports = function (io) {
 
     // 用户一对一消息发送
     socket.on('message',(msg,fromID,toID)=>{
-      console.log(msg)
-      //修改好友最后通讯时间
+      // console.log(msg)
+      //修改好友最后通讯时间 
       dbServer.friendLastTime({uID:fromID,fID:toID})
       // 存储一对一消息
       dbServer.insertMessage(fromID,toID,msg.message,msg.messageTypes)

@@ -4,7 +4,11 @@ const dbServer = require('../dao/dbserver')
 // 获取好友列表
 exports.getFriendList = function (req, res) {
   let data = req.body
-  dbServer.getFriendList(data, res)
+  if(data.state === 0){
+    dbServer.getFriendList(data, res)
+  }else if(data.state === 1){
+    dbServer.getFriendList1(data, res)
+  }
 }
 
 
