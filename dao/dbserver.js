@@ -567,7 +567,7 @@ async function asyncGetFriendList(data, res) {
   } else {
     res.send({status: 200, result})
   }
-}
+} 
 
 // 一对一消息状态修改
 exports.updateMessage = function (data, res) {
