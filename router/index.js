@@ -131,11 +131,11 @@ router.post('/index/getFriendList', (req, res) => {
   index.getFriendList(req,res)
 })
 
-// 获取和好友的最后一条消息
+// 获取和好友的最后一条消息  // 前端已废弃
 router.post('/index/getLastMessage', (req, res) => {
   index.getLastMessage(req,res)
 })
-// 获取好友的未读消息数
+// 获取好友的未读消息数 // 前端已废弃
 router.post('/index/unReadMessage', (req, res) => {
   index.unReadMessage(req,res)
 })
@@ -165,6 +165,10 @@ router.post('/index/updateGroupMessage', (req, res) => {
 // 获取一对一聊天数据
 router.post('/chat/getPageMessage', (req, res) => {
   chat.getPageMessage(req,res)
+})
+// 获取群聊天数据
+router.post('/chat/getPageGroupMessage', (req, res) => {
+  chat.getPageGroupMessage(req,res)
 })
 
 

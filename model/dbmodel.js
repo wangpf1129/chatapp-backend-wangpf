@@ -68,6 +68,7 @@ let GroupMessageSchema = new Schema({
   message: {type: String},                              // 群消息内容
   messageTypes: {type: String},                        // 消息类型（0文字，1图片链接，2音频链接, 3位置）
   sendTime:{type:Date},                               // 发送时间
+  state: {type: Number},                             // 消息状态（0已读，1未读）
 })
 
 // 3.将文档结构发布为 模型 model 并暴露出去
