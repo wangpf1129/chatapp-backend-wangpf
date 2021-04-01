@@ -51,7 +51,8 @@ module.exports = function (io) {
       // console.log(msg,fromID,groupID,name,img);
       dbServer.insertGroupMessage(groupID,fromID,msg.message,msg.messageTypes)
       // 群内广播消息
-      socket.to(groupID).emit('groupMessage',msg,groupID,name,img)
+      socket.to(groupID).emit('groupMessage',msg,fromID,groupID,name,img,0)
+      socket.emit('groupMessage',msg,fromID,groupID,name,img,1)
 
       // 回复客户端
       socket.name = groupID
