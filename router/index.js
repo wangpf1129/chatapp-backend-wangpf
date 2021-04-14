@@ -178,6 +178,26 @@ router.post('/group/createGroup', (req, res) => {
   group.createGroup(req,res)
 })
 
+// 详情
+router.post('/group/detail', (req, res) => {
+  group.groupDetail(req, res)
+})
+
+// 群信息修改
+router.post('/group/update', (req, res) => {
+  group.groupUpdate(req, res)
+})
+
+
+//  获取群成员
+router.post('/group/groupMemberID', (req, res) => {
+  group.groupMemberID(req, res)
+})
+
+router.post('/group/groupMember', (req, res) => {
+  group.groupMember(req, res)
+})
+
 module.exports = router
 
 

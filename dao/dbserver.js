@@ -224,7 +224,6 @@ function match(updateStr, data, res) {
 exports.userUpdate = function (data, res) {
   // public 传给前端的数据对象
   let updateStr = {};
-
   // 判断是否有密码
   if (typeof (data.password) !== 'undefined') {
     // 有密码进行匹配
@@ -265,7 +264,6 @@ exports.userUpdate = function (data, res) {
     // 一般项修改 （不需要密码的）
     updateStr[data.type] = data.data;
     update(data.id, updateStr, res);
-
   }
 };
 
@@ -545,7 +543,7 @@ function unReadMessages(uID, fID) {
 async function asyncGetFriendList(data, res) {
   let result, lastMessage, unRead, err
   ;[err, result] = await getFriendsList(data).then(data => [null, data]).catch(err => [err, null]);
-
+  if (!result) {return;}
   for (let i = 0; i < result.length; i++) {
     ;[err, lastMessage] = await getOneMessages(data.uID, result[i].id).then(data => [null, data]).catch(err => [err, null]);
     let messageTypesMap = {
@@ -574,6 +572,8 @@ async function asyncGetFriendList(data, res) {
 async function asyncGetGroupList(data, res) {
   let result, lastMessage, unRead, err
   ;[err, result] = await getGroupsList(data).then(data => [null, data]).catch(err => [err, null]);
+  if (!result) {return;}
+
   for (let i = 0; i < result.length; i++) {
     ;[err, lastMessage] = await getGroupMessages(data.uID, result[i].id).then(data => [null, data]).catch(err => [err, null]);
     let messageTypesMap = {
@@ -581,7 +581,14 @@ async function asyncGetGroupList(data, res) {
       2: '[语音]',
       3: '[位置]'
     };
-    if (lastMessage === null) {return; }
+    if (lastMessage === null) {
+      lastMessage = {
+        message: '',
+        sendTime: new Date().getTime(),
+        messageTypes: '0',
+        userName: undefined
+      };
+    }
     if (lastMessage.messageTypes === '0') {
       // 文字
     } else {
@@ -591,10 +598,12 @@ async function asyncGetGroupList(data, res) {
     ;[err, unRead] = await unReadGroupMessages(data.uID, result[i].id).then(data => [null, data]).catch(err => [err, null]);
     result[i].tips = unRead;
   }
+
   if (err) {
     res.send(err);
   } else {
     res.send({status: 200, result});
+
   }
 }
 
@@ -615,7 +624,7 @@ exports.updateMessage = function (data, res) {
 // 群消息状态修改
 exports.updateGroupMessage = function (data, res) {
   //  修改项条件
-  let whereStr = {'groupID': data.gID,'state': 1};
+  let whereStr = {'groupID': data.gID, 'state': 1};
   // 修改内容
   let updateStr = {'state': 0};
   GroupMessage.updateMany(whereStr, updateStr)
@@ -647,6 +656,7 @@ exports.createGroup = function (data, res) {
     groupName: data.groupName, // 群名
     imgUrl: data.imgUrl, // 群头像
     createDate: new Date(),  //创建时间
+    notice: '目前没有群公告',
   };
   let group = new Group(groupData);
 
@@ -655,7 +665,7 @@ exports.createGroup = function (data, res) {
       res.send({status: 500});
     })
     .then((value) => {
-      console.log(value);
+      // console.log(value);
       // 添加好友入群
       for (let i = 0; i < data.user.length; i++) {
         let fData = {
@@ -745,12 +755,10 @@ exports.getGroupList1 = function (data, res) {
 };
 exports.getGroupList = function (data, res) {
   asyncGetGroupList(data, res);
-
 };
 
 function getGroupsList(data) {
   return new Promise(function (resolve, reject) {
-
     let query = GroupUser.find({});
     // 查询条件
     query.where({'userID': data.uID});
@@ -762,13 +770,14 @@ function getGroupsList(data) {
     // 查询结果
     query.exec()
       .then(function (e) {
+        // console.log(e);
         let result = e.map(item => {
           return {
             // groupID 是从群表里取出来
             // item 就是群成员表中的数据
             id: item.groupID._id,    // 群ID   （在群表里找）
             name: item.groupID.groupName,  // 群名   （在群表里找）
-            markName: item.groupUserName,  // markName 指 在 群内的昵称   （在群成员表里找）
+            // markName: item.groupUserName,  // markName 指 在 群内的昵称   （在群成员表里找）
             imgUrl: item.groupID.imgUrl,  // 群头像    （在群表里找）
             lastTime: item.lastTime,     // 群的最后通讯时间   （在群成员表里找）
             tip: item.tip,
@@ -949,4 +958,56 @@ exports.getPageGroupMessage = function (data, res) {
       res.send({status: 500});
     });
 
+};
+
+
+// 群详情页
+exports.groupDetail = function (id, res) {
+  let whereStr = {'_id': id};
+  Group.findOne(whereStr)
+    .catch(function () {
+      res.send({status: 500});
+    })
+    .then(function (result) {
+      res.send({status: 200, result});
+    });
+};
+
+// 群信息修改
+exports.groupUpdate = function (data, res) {
+  let updateStr = {};
+  updateStr[data.type] = data.data;
+  Group.findByIdAndUpdate(data.id, updateStr, res)
+    .catch(function () {
+      // 修改失败
+      res.send({status: 500});
+    })
+    .then(function () {
+      // 修改成功
+      res.send({status: 200});
+    });
+};
+
+// 获取群成员
+exports.groupMemberID = function (data, res) {
+  let groupID = {'groupID': data.id};
+  let out = {'userID': 1};
+  GroupUser.find(groupID, out)
+    .catch(function () {
+      res.send({status: 500});
+    })
+    .then(function (result) {
+      res.send({status: 200, result});
+    });
+};
+
+exports.groupMember = function (data, res) {
+  let out = {'userName': 1, 'imgUrl': 1};
+  User.find({}, out)
+    .catch(function () {
+      res.send({status: 500});
+    })
+    .then(function (result) {
+      res.send({status: 200, result});
+    });
 };
